@@ -55,7 +55,7 @@ export default function DhikrCounter() {
   }
 
   // ─────────────────────────────
-  // POINTER UP (GESTURE LOGIC)
+  // POINTER UP
   // ─────────────────────────────
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragging.current) return
@@ -67,7 +67,7 @@ export default function DhikrCounter() {
     const absX = Math.abs(dx)
     const absY = Math.abs(dy)
 
-    // ───── RESET (X swipe)
+    // RESET
     if (axis.current === 'x' && absX > 60) {
       setAnimating(true)
       resetPosition()
@@ -87,7 +87,7 @@ export default function DhikrCounter() {
       return
     }
 
-    // ───── INCREMENT (Y swipe)
+    // INCREMENT
     if (axis.current === 'y' && absY > 50) {
       setCount((c) => c + 1)
     }
@@ -103,37 +103,70 @@ export default function DhikrCounter() {
       style={{
         height: '100vh',
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        flexDirection: 'column',
         background: '#f5f5f5',
       }}
     >
+      {/* 🔷 TOP BOX */}
       <div
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
         style={{
-          width: 110,
-          height: 110,
-          borderRadius: '50%',
-          background: '#001529',
-          color: 'white',
-          fontSize: 40,
+          paddingTop: 40,
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          style={{
+            padding: 12,
+            border: '1px solid #001529',
+            borderRadius: 10,
+            fontSize: 14,
+            color: '#001529',
+            textAlign: 'center',
+            width: 260,
+            background: 'white',
+          }}
+        >
+          More Dhikr to Unlock Reward
+        </div>
+      </div>
+
+      {/* 🔵 CENTER AREA */}
+      <div
+        style={{
+          flex: 1,
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          userSelect: 'none',
-          cursor: 'grab',
-          touchAction: 'none',
-
-          transform: `translate(${x}px, ${y}px) scale(${scale})`,
-          transition: animating
-            ? 'transform 0.3s ease-in-out'
-            : 'transform 0.15s ease',
         }}
       >
-        {count}
+        <div
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          style={{
+            width: 110,
+            height: 110,
+            borderRadius: '50%',
+            background: '#001529',
+            color: 'white',
+            fontSize: 40,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            userSelect: 'none',
+            cursor: 'grab',
+            touchAction: 'none',
+
+            transform: `translate(${x}px, ${y}px) scale(${scale})`,
+            transition: animating
+              ? 'transform 0.3s ease-in-out'
+              : 'transform 0.15s ease',
+          }}
+        >
+          {count}
+        </div>
       </div>
     </div>
   )
