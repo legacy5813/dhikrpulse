@@ -49,8 +49,9 @@ const Sidebar: React.FC = () => {
             },
           ]}
           onClick={(e) => {
-            if (e.key === '1') navigate('/')
+            if (e.key === '1') navigate('/') 
             if (e.key === '2') navigate('/about')
+              setOpen(false)
           }}
         />
       )}
