@@ -12,7 +12,7 @@ function App() {
         <Routes>
           <Route path="/" element={<DhikrCounter />} />
           <Route path="/about" element={<About />} />
-        </Routes>
+        </Routes>   
       </div>
     </div>
   )
