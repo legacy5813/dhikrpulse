@@ -4,7 +4,8 @@ export default function DhikrCounter() {
   const [count, setCount] = useState(0)
   const [x, setX] = useState(0)
   const [y, setY] = useState(0)
-  const [spinning, setSpinning] = useState(false)
+  const [animating, setAnimating] = useState(false)
+  const [scale, setScale] = useState(1)
 
   const startX = useRef(0)
   const startY = useRef(0)
@@ -23,29 +24,19 @@ export default function DhikrCounter() {
   }
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!dragging.current || spinning) return
+    if (!dragging.current || animating) return
 
     const dx = e.clientX - startX.current
     const dy = e.clientY - startY.current
 
-    // 🔥 decide axis once
     if (!axis.current) {
-      if (Math.abs(dx) > Math.abs(dy)) {
-        axis.current = 'x'
-      } else {
-        axis.current = 'y'
-      }
+      axis.current = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
     }
 
-    // 🔒 LOCKED TO X
     if (axis.current === 'x') {
       setX(dx)
       setY(0)
-      return
-    }
-
-    // 🔒 LOCKED TO Y
-    if (axis.current === 'y') {
+    } else {
       setY(dy)
       setX(0)
     }
@@ -59,22 +50,34 @@ export default function DhikrCounter() {
     const dx = e.clientX - startX.current
     const dy = e.clientY - startY.current
 
-    // 🔄 X gesture → spin reset
-    if (axis.current === 'x' && Math.abs(dx) > 60) {
-      setSpinning(true)
+    const absX = Math.abs(dx)
+    const absY = Math.abs(dy)
+
+    // 🔄 X gesture → EXPAND + IMPLODE + RESET
+    if (axis.current === 'x' && absX > 60) {
+      setAnimating(true)
       setX(0)
       setY(0)
 
+      // expand
+      setScale(1.6)
+
       setTimeout(() => {
-        setCount(0)
-        setSpinning(false)
-      }, 2000)
+        // implode
+        setScale(0)
+
+        setTimeout(() => {
+          setCount(0)
+          setScale(1)
+          setAnimating(false)
+        }, 300)
+      }, 300)
 
       return
     }
 
     // 🔽 Y gesture → increment
-    if (axis.current === 'y' && Math.abs(dy) > 50) {
+    if (axis.current === 'y' && absY > 50) {
       setCount((c) => c + 1)
     }
 
@@ -110,13 +113,11 @@ export default function DhikrCounter() {
           cursor: 'grab',
           touchAction: 'none',
 
-          transform: spinning
-            ? 'rotateY(1080deg)'
-            : `translate(${x}px, ${y}px)`,
+          transform: `translate(${x}px, ${y}px) scale(${scale})`,
 
-          transition: spinning
-            ? '2s cubic-bezier(0.34, 1.56, 0.64, 1)'
-            : '0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transition: animating
+            ? 'transform 0.3s ease-in-out'
+            : 'transform 0.2s ease',
         }}
       >
         {count}
