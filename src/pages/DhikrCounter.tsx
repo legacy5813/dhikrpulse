@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { getRandomVerse } from '../modules/quran'
 
 export default function DhikrCounter() {
   const [count, setCount] = useState(0)
@@ -9,15 +10,42 @@ export default function DhikrCounter() {
   const [scale, setScale] = useState(1)
   const [animating, setAnimating] = useState(false)
 
+  // reward state
+  const [verse, setVerse] = useState<{ text: string; ref: string } | null>(null)
+  const lastMilestone = useRef(0)
+
   const startX = useRef(0)
   const startY = useRef(0)
   const dragging = useRef(false)
   const axis = useRef<'x' | 'y' | null>(null)
 
   // ─────────────────────────────
+  // MILESTONE LOGIC (20, 40, 60...)
+  // ─────────────────────────────
+  useEffect(() => {
+    const milestone = Math.floor(count / 20)
+
+    // RESET → default state
+    if (count === 0) {
+      setVerse(null)
+      lastMilestone.current = 0
+      return
+    }
+
+    // NEW MILESTONE → fetch verse
+    if (milestone > 0 && milestone !== lastMilestone.current) {
+      lastMilestone.current = milestone
+
+      getRandomVerse()
+        .then(setVerse)
+        .catch(console.error)
+    }
+  }, [count])
+
+  // ─────────────────────────────
   // POINTER DOWN
   // ─────────────────────────────
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     dragging.current = true
     axis.current = null
 
@@ -30,7 +58,7 @@ export default function DhikrCounter() {
   // ─────────────────────────────
   // POINTER MOVE
   // ─────────────────────────────
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handlePointerMove = (e: React.PointerEvent) => {
     if (!dragging.current || animating) return
 
     const dx = e.clientX - startX.current
@@ -57,7 +85,7 @@ export default function DhikrCounter() {
   // ─────────────────────────────
   // POINTER UP
   // ─────────────────────────────
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handlePointerUp = (e: React.PointerEvent) => {
     if (!dragging.current) return
     dragging.current = false
 
@@ -67,7 +95,7 @@ export default function DhikrCounter() {
     const absX = Math.abs(dx)
     const absY = Math.abs(dy)
 
-    // RESET
+    // RESET (swipe X)
     if (axis.current === 'x' && absX > 60) {
       setAnimating(true)
       resetPosition()
@@ -79,6 +107,8 @@ export default function DhikrCounter() {
 
         setTimeout(() => {
           setCount(0)
+          setVerse(null)
+          lastMilestone.current = 0
           setScale(1)
           setAnimating(false)
         }, 300)
@@ -87,7 +117,7 @@ export default function DhikrCounter() {
       return
     }
 
-    // INCREMENT
+    // INCREMENT (swipe Y)
     if (axis.current === 'y' && absY > 50) {
       setCount((c) => c + 1)
     }
@@ -127,7 +157,18 @@ export default function DhikrCounter() {
             background: 'white',
           }}
         >
-          More Dhikr to Unlock Reward
+          {count === 0 && 'More Dhikr to Unlock Reward'}
+
+          {count > 0 && !verse && 'Keep going...'}
+
+          {verse && count > 0 && (
+            <>
+              <div style={{ marginBottom: 6 }}>{verse.text}</div>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>
+                — {verse.ref}
+              </div>
+            </>
+          )}
         </div>
       </div>
 

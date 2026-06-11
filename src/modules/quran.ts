@@ -8,11 +8,20 @@ export type QuranVerse = {
 // Base API endpoint
 const BASE_URL = 'https://api.alquran.cloud/v1'
 
+// total ayahs in Quran
+const TOTAL_AYAHS = 6236
+
+function getRandomAyahNumber() {
+  return Math.floor(Math.random() * TOTAL_AYAHS) + 1
+}
+
 /**
  * Fetch a random Quran verse with English translation
  */
 export async function getRandomVerse(): Promise<QuranVerse> {
-  const res = await fetch(`${BASE_URL}/ayah/random/en.asad`)
+  const randomAyah = getRandomAyahNumber()
+
+  const res = await fetch(`${BASE_URL}/ayah/${randomAyah}/en.asad`)
 
   if (!res.ok) {
     throw new Error('Failed to fetch Quran verse')
