@@ -1,13 +1,23 @@
-/* index.css */
-
+/* RESET */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* FULL SCREEN LOCK */
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* FONT */
 body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-
+/* ANTD FIX (IMPORTANT) */
+.ant-layout {
+  height: 100vh;
+  overflow: hidden;
+}
