@@ -103,7 +103,7 @@ export default function DhikrCounter() {
           width: 100,
           height: 100,
           borderRadius: '50%',
-          background: '#f262ff',
+          background: '#001529',
           color: 'white',
           fontSize: 40,
           display: 'flex',
