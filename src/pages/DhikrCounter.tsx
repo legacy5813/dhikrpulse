@@ -7,24 +7,26 @@ export default function DhikrCounter() {
   const startY = useRef(0)
   const dragging = useRef(false)
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     dragging.current = true
     startY.current = e.clientY
+
+    // ensures element keeps receiving move events
+    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   }
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handlePointerMove = (e: React.PointerEvent) => {
     if (!dragging.current) return
 
     const diff = e.clientY - startY.current
     setY(diff)
   }
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     if (!dragging.current) return
 
     dragging.current = false
 
-    // bounce back + increment
     setY(0)
     setCount((c) => c + 1)
   }
@@ -39,10 +41,10 @@ export default function DhikrCounter() {
       }}
     >
       <div
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         style={{
           width: 200,
           height: 200,
@@ -55,9 +57,12 @@ export default function DhikrCounter() {
           alignItems: 'center',
           userSelect: 'none',
           cursor: 'grab',
+          touchAction: 'none', // 🔥 CRITICAL for mobile drag
 
           transform: `translateY(${y}px)`,
-          transition: dragging.current ? 'none' : '0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transition: dragging.current
+            ? 'none'
+            : '0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
       >
         {count}
