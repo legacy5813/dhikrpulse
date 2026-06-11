@@ -100,10 +100,10 @@ export default function DhikrCounter() {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         style={{
-          width: 200,
-          height: 200,
+          width: 100,
+          height: 100,
           borderRadius: '50%',
-          background: '#1677ff',
+          background: '#f262ff',
           color: 'white',
           fontSize: 40,
           display: 'flex',

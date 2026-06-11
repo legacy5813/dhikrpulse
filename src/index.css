@@ -14,6 +14,7 @@ html, body, #root {
 /* FONT */
 body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #f7f7f7; /* 👈 add this */
 }
 
 /* ANTD FIX (IMPORTANT) */
