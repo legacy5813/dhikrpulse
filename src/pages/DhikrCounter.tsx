@@ -1,68 +1,21 @@
-import { useEffect, useRef, useState } from 'react'
-
-const BACKGROUNDS = [
-  null,
-  '/beachsunset.jpg',
-  '/forest.jpg',
-  '/mountains.jpg',
-]
-
-const STEP = 25
+import { useRef, useState } from 'react'
 
 export default function DhikrCounter() {
-  const [count, setCount] = useState<number>(0)
+  const [count, setCount] = useState(0)
 
   // gesture state
-  const [x, setX] = useState<number>(0)
-  const [y, setY] = useState<number>(0)
-  const [scale, setScale] = useState<number>(1)
-  const [animating, setAnimating] = useState<boolean>(false)
+  const [x, setX] = useState(0)
+  const [y, setY] = useState(0)
+  const [scale, setScale] = useState(1)
+  const [animating, setAnimating] = useState(false)
 
-  // background state
-  const [bgIndex, setBgIndex] = useState<number>(0)
-  const [nextBgIndex, setNextBgIndex] = useState<number | null>(null)
-  const [fading, setFading] = useState<boolean>(false)
-
-  const startX = useRef<number>(0)
-  const startY = useRef<number>(0)
-  const dragging = useRef<boolean>(false)
+  const startX = useRef(0)
+  const startY = useRef(0)
+  const dragging = useRef(false)
   const axis = useRef<'x' | 'y' | null>(null)
 
   // ─────────────────────────────
-  // BACKGROUND LOGIC (FIXED)
-  // ─────────────────────────────
-  useEffect(() => {
-    // ✅ RESET CASE (IMPORTANT FIX)
-    if (count === 0) {
-      setBgIndex(0)
-      setNextBgIndex(null)
-      setFading(false)
-      return
-    }
-
-    const newIndex = Math.floor(count / STEP)
-
-    if (newIndex !== bgIndex && BACKGROUNDS[newIndex]) {
-      setNextBgIndex(newIndex)
-      setFading(true)
-
-      const timeoutId = setTimeout(() => {
-        setBgIndex(newIndex)
-        setFading(false)
-        setNextBgIndex(null)
-      }, 600)
-
-      return () => clearTimeout(timeoutId)
-    }
-  }, [count, bgIndex])
-
-  const currentBg = BACKGROUNDS[bgIndex]
-
-  const nextBg =
-    nextBgIndex !== null ? BACKGROUNDS[nextBgIndex] : null
-
-  // ─────────────────────────────
-  // GESTURE HANDLERS
+  // POINTER DOWN
   // ─────────────────────────────
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     dragging.current = true
@@ -74,6 +27,9 @@ export default function DhikrCounter() {
     e.currentTarget.setPointerCapture(e.pointerId)
   }
 
+  // ─────────────────────────────
+  // POINTER MOVE
+  // ─────────────────────────────
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragging.current || animating) return
 
@@ -98,6 +54,9 @@ export default function DhikrCounter() {
     setY(0)
   }
 
+  // ─────────────────────────────
+  // POINTER UP (GESTURE LOGIC)
+  // ─────────────────────────────
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragging.current) return
     dragging.current = false
@@ -140,80 +99,41 @@ export default function DhikrCounter() {
   // RENDER
   // ─────────────────────────────
   return (
-    <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
-
-      {/* BASE BACKGROUND */}
+    <div
+      style={{
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: '#f5f5f5',
+      }}
+    >
       <div
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: currentBg ? `url(${currentBg})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          transform: 'scale(1.05)',
-        }}
-      />
-
-      {/* FADE LAYER */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: nextBg ? `url(${nextBg})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: fading ? 1 : 0,
-          transition: 'opacity 0.6s ease-in-out',
-          transform: 'scale(1.05)',
-        }}
-      />
-
-      {/* DARK OVERLAY */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'rgba(0,0,0,0.35)',
-        }}
-      />
-
-      {/* COUNTER UI */}
-      <div
-        style={{
-          position: 'relative',
-          height: '100%',
+          width: 110,
+          height: 110,
+          borderRadius: '50%',
+          background: '#001529',
+          color: 'white',
+          fontSize: 40,
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          userSelect: 'none',
+          cursor: 'grab',
+          touchAction: 'none',
+
+          transform: `translate(${x}px, ${y}px) scale(${scale})`,
+          transition: animating
+            ? 'transform 0.3s ease-in-out'
+            : 'transform 0.15s ease',
         }}
       >
-        <div
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          style={{
-            width: 110,
-            height: 110,
-            borderRadius: '50%',
-            background: '#001529',
-            color: 'white',
-            fontSize: 40,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            userSelect: 'none',
-            cursor: 'grab',
-            touchAction: 'none',
-
-            transform: `translate(${x}px, ${y}px) scale(${scale})`,
-            transition: animating
-              ? 'transform 0.3s ease-in-out'
-              : 'transform 0.15s ease',
-          }}
-        >
-          {count}
-        </div>
+        {count}
       </div>
     </div>
   )
